@@ -1,0 +1,23 @@
+{
+  "name": "reviews",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpp2204-sdc-caprese/reviews.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rpp2204-sdc-caprese/reviews/issues"
+  },
+  "homepage": "https://github.com/rpp2204-sdc-caprese/reviews#readme",
+  "devDependencies": {
+    "jest": "^29.1.2"
+  }
+}
