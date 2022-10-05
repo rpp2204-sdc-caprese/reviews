@@ -1,4 +1,5 @@
 const { Pool, Client } = require('pg');
+const Promise = require('bluebird');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -12,4 +13,4 @@ pool.on('error', (err, client) => {
   process.exit(-1)
 })
 
-module.exports = pool;
+module.exports = Promise.promisifyAll(pool);
