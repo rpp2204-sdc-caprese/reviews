@@ -7,7 +7,9 @@ const pool = new Pool({
   password: process.env.PASSWORD
 });
 
-pool.query('SELECT * FROM characteristics WHERE id = 1', (err, res) => {
-  console.log('response', res);
-  pool.end();
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err)
+  process.exit(-1)
 })
+
+module.exports = pool;
