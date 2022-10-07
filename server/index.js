@@ -1,39 +1,34 @@
 const express = require('express');
-const app = express();
-const port = 3000;
-const db = require('../db/index.js');
 
-app.get('/', (req, res) => {
-  db.queryAsync('SELECT * FROM reviews LIMIT 5')
-    .then(response => {
-      res.json(response.rows);
-    })
-    .catch(error => {
-      console.log(error.stack)
-    })
-})
+module.exports = (db) => {
+  const app = express();
 
-app.get('/reviews', (req, res) => {
-  res.send('Send back reviews')
-})
+  app.get('/', (req, res) => {
+    let { page = 1, count = 5 , sort = 'newest' , product_id } = req.query;
 
-app.get('/reviews/meta', (req, res) => {
-  res.send('Send back meta data')
-})
+    db.getReviews(req, res);
+  })
 
-app.post('/reviews', (req, res) => {
-  res.send('post review')
-})
+  app.get('/reviews', (req, res) => {
+    res.send('Send back reviews')
+  })
 
-app.put('/reviews/:review_id/helpful', (req, res) => {
-  res.send('mark as helpful')
-})
+  app.get('/reviews/meta', (req, res) => {
+    res.send('Send back meta data')
+  })
 
-app.put('/reviews/:review_id/report', (req, res) => {
-  res.send('mark as reported')
-})
+  app.post('/reviews', (req, res) => {
+    res.send('post review')
+  })
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-})
+  app.put('/reviews/:review_id/helpful', (req, res) => {
+    res.send('mark as helpful')
+  })
+
+  app.put('/reviews/:review_id/report', (req, res) => {
+    res.send('mark as reported')
+  })
+
+  return app;
+}
 
