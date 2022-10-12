@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "server": "nodemon ./server/app.js"
+    "test": "jest --detectOpenHandles",
+    "server": "nodemon ./server/index.js"
   },
   "repository": {
     "type": "git",

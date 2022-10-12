@@ -38,6 +38,10 @@ CREATE TABLE IF NOT EXISTS characteristics_reviews (
     REFERENCES reviews (id)
 );
 
+CREATE INDEX reviews_product_id_idx ON reviews (product_id);
+
+CREATE INDEX photos_review_id_idx ON reviews (review_id);
+
 -- \copy reviews (id, product_id, rating, created_at, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
 -- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/reviews.csv'
 -- DELIMITER ','
