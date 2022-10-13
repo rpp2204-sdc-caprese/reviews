@@ -30,17 +30,22 @@ CREATE TABLE IF NOT EXISTS characteristics (
 CREATE TABLE IF NOT EXISTS characteristics_reviews (
   id SERIAL PRIMARY KEY,
   characteristics_id INT NOT NULL,
-  reviews_id INT NOT NULL,
+  review_id INT NOT NULL,
   value INT NOT NULL,
   FOREIGN KEY (characteristics_id)
     REFERENCES characteristics (id),
-  FOREIGN KEY (reviews_id)
+  FOREIGN KEY (review_id)
     REFERENCES reviews (id)
 );
 
 CREATE INDEX reviews_product_id_idx ON reviews (product_id);
 
 CREATE INDEX photos_review_id_idx ON reviews (review_id);
+
+CREATE INDEX cr_reviews_id_idx ON characteristics_reviews (review_id);
+
+CREATE INDEX cr_characteristics_id_idx ON characteristics_reviews (characteristics_id);
+
 
 -- \copy reviews (id, product_id, rating, created_at, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
 -- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/reviews.csv'

@@ -4,7 +4,7 @@ module.exports = (db) => {
   const app = express();
 
   app.get('/', (req, res) => {
-    res.send('Hello');
+    res.send('No Route');
   })
 
   app.get('/reviews', (req, res) => {
@@ -12,7 +12,7 @@ module.exports = (db) => {
   })
 
   app.get('/reviews/meta', (req, res) => {
-    res.send('Send back meta data')
+    db.getMetaData(req, res);
   })
 
   app.post('/reviews', (req, res) => {
