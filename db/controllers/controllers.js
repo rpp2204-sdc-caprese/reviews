@@ -17,12 +17,13 @@ module.exports.getReviews = (req, res) => {
                                   date,
                                   summary,
                                   body,
-                                  recommend,
+                                  recommended,
                                   reviewer_name,
                                   reviewer_email,
                                   response,
                                   helpfulness
                             FROM reviews WHERE product_id = ${product_id}
+                            AND reported = false
                             LIMIT ${count}`)
     .then(result => {
       //store reviews in data object
@@ -68,6 +69,8 @@ module.exports.getMetaData = (req, res) => {
     characteristics: {}
   }
 
+  //instead, refactor to select count of each rating and recommended
+
   //query ratings and recommended from reviews table
   model.queryAsync(`SELECT id, rating, recommended FROM reviews WHERE product_id = ${product_id}`)
     .then(result => {
@@ -93,9 +96,9 @@ module.exports.getMetaData = (req, res) => {
                                         data.characteristics[char.name] = {
                                           id: char.id,
                                           value: char.value
-                                        } else {
-                                          //somehow get calculate the average of the value and reasign
                                         }
+                                      } else {
+                                        //somehow get calculate the average of the value and reasign
                                       }
                                     })
                                   })
@@ -112,4 +115,47 @@ module.exports.getMetaData = (req, res) => {
     })
 };
 
+module.exports.postReview = (req, res) => {
+  let insertReviewQuery = {
+    text: 'INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+    values: Object.values(req.body)
+  }
+  // let values = Object.values(req.body)
+  // let insertReview = `INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email)
+  //               VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+
+  //insert new row into reviews
+  // model.queryAsync(insertReviewQuery)
+
+  //insert each photo url into photos table, with corresponding review ID
+
+  //characteristic id???
+
+  res.json(values);
+}
+
+module.exports.markHelpful = (req, res) => {
+  let {review_id} = req.params;
+
+  model.queryAsync(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = ${review_id}`)
+    .then(result => {
+      res.status(200).send(`Marked review ${review_id} as helpful`);
+    })
+    .catch(error => {
+      res.status(400).send(error.stack);
+    })
+}
+
+module.exports.reportReview = (req, res) => {
+  let {review_id} = req.params;
+
+  model.queryAsync(`UPDATE reviews SET reported = true WHERE id = ${review_id}`)
+  .then(result => {
+    res.status(200).send(`Reported review ${review_id}`);
+  })
+  .catch(error => {
+    res.status(400).send(error.stack);
+  })
+}
 

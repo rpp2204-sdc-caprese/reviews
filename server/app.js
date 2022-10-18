@@ -2,6 +2,7 @@ const express = require('express');
 
 module.exports = (db) => {
   const app = express();
+  app.use(express.json());
 
   app.get('/', (req, res) => {
     res.send('No Route');
@@ -16,15 +17,15 @@ module.exports = (db) => {
   })
 
   app.post('/reviews', (req, res) => {
-    res.send('post review')
+    db.postReview(req, res);
   })
 
   app.put('/reviews/:review_id/helpful', (req, res) => {
-    res.send('mark as helpful')
+    db.markHelpful(req, res);
   })
 
   app.put('/reviews/:review_id/report', (req, res) => {
-    res.send('mark as reported')
+    db.reportReview(req, res);
   })
 
   return app;
