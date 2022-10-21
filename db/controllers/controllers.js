@@ -7,7 +7,7 @@ module.exports.getReviews = (req, res) => {
  //initialize data object
   let data = {
     product: product_id,
-    page,
+    page: page,
     count
   }
 
@@ -22,9 +22,11 @@ module.exports.getReviews = (req, res) => {
                                   reviewer_email,
                                   response,
                                   helpfulness
-                            FROM reviews WHERE product_id = ${product_id}
+                            FROM reviews
+                            WHERE product_id = ${product_id}
                             AND reported = false
-                            LIMIT ${count}`)
+                            LIMIT ${count}
+                            OFFSET ${page - 1}`)
     .then(result => {
       //store reviews in data object
       data.results = result.rows;
@@ -55,57 +57,33 @@ module.exports.getMetaData = (req, res) => {
 
   let data = {
     product_id,
-    ratings: {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0
-    },
-    recommended: {
-      true: 0,
-      false: 0
-    },
+    ratings: {},
+    recommended: {},
     characteristics: {}
   }
 
-  //instead, refactor to select count of each rating and recommended
-
-  //query ratings and recommended from reviews table
-  model.queryAsync(`SELECT id, rating, recommended FROM reviews WHERE product_id = ${product_id}`)
+  //count all ratings
+  model.queryAsync(`SELECT COUNT(id), rating FROM reviews WHERE product_id = ${product_id} GROUP BY rating`)
     .then(result => {
-      let promises = result.rows.map(review => {
-                      //increment ratings
-                      data.ratings[review.rating]++
-                      //increment recommendeds
-                      data.recommended[review.recommended]++
-
-                      //query for characteristics for each review
-                      return model.queryAsync(`SELECT c.name, cr.value, cr.id
-                                               FROM characteristics AS c
-                                               INNER JOIN characteristics_reviews AS cr
-                                               ON cr.characteristics_id = c.id
-                                               AND cr.review_id = ${review.id}`)
-                                  .then(charData => {
-                                    console.log('data', charData.rows)
-
-                                    //for each characteristic
-                                    charData.rows.forEach(char => {
-                                      //create data in obj
-                                      if (!data.characteristics[char.name]) {
-                                        data.characteristics[char.name] = {
-                                          id: char.id,
-                                          value: char.value
-                                        }
-                                      } else {
-                                        //somehow get calculate the average of the value and reasign
-                                      }
-                                    })
-                                  })
-                    })
-      return Promise.all(promises);
+      result.rows.forEach(x => {
+        data.ratings[x.rating] = x.count;
+      })
+      //count recomendeds
+      return model.queryAsync(`SELECT COUNT(id), recommended FROM reviews WHERE product_id = ${product_id} GROUP BY recommended`)
     })
     .then(result => {
+      result.rows.forEach(x => {
+        data.recommended[x.recommended] = x.count;
+      })
+
+      return model.queryAsync(`SELECT c.name, AVG(cr.value) FROM characteristics AS c INNER JOIN characteristics_reviews AS cr ON cr.characteristics_id = c.id AND c.product_id = ${product_id} GROUP BY c.name`)
+    })
+    .then(result => {
+      result.rows.forEach(x => {
+        data.characteristics[x.name] = x.avg;
+      })
+    })
+    .then(() => {
       console.log('final data', data)
       res.status(200).json(data);
     })
@@ -132,7 +110,7 @@ module.exports.postReview = (req, res) => {
 
   //characteristic id???
 
-  res.json(values);
+  res.status(200).send(`Successfully posted review for product ${req.body.product_id}`);
 }
 
 module.exports.markHelpful = (req, res) => {
@@ -158,4 +136,41 @@ module.exports.reportReview = (req, res) => {
     res.status(400).send(error.stack);
   })
 }
+
+
+
+  // //query ratings and recommended from reviews table
+  // model.queryAsync(`SELECT id, rating, recommended FROM reviews WHERE product_id = ${product_id}`)
+  //   .then(result => {
+  //     let promises = result.rows.map(review => {
+  //                     //increment ratings
+  //                     data.ratings[review.rating]++
+  //                     //increment recommendeds
+  //                     data.recommended[review.recommended]++
+
+  //                     //query for characteristics for each review
+  //                     return model.queryAsync(`SELECT c.name, cr.value, cr.id
+  //                                              FROM characteristics AS c
+  //                                              INNER JOIN characteristics_reviews AS cr
+  //                                              ON cr.characteristics_id = c.id
+  //                                              AND cr.review_id = ${review.id}`)
+  //                                 .then(charData => {
+  //                                   console.log('data', charData.rows)
+
+  //                                   //for each characteristic
+  //                                   charData.rows.forEach(char => {
+  //                                     //create data in obj
+  //                                     if (!data.characteristics[char.name]) {
+  //                                       data.characteristics[char.name] = {
+  //                                         id: char.id,
+  //                                         value: char.value
+  //                                       }
+  //                                     } else {
+  //                                       //somehow get calculate the average of the value and reasign
+  //                                     }
+  //                                   })
+  //                                 })
+  //                   })
+  //     return Promise.all(promises);
+  //   })
 

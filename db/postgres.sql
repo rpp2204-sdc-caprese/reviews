@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   id SERIAL PRIMARY KEY,
   product_id INT NOT NULL,
   rating INT NOT NULL,
-  created_at BIGINT NOT NULL,
+  date BIGINT NOT NULL,
   summary VARCHAR (256) NOT NULL,
   body VARCHAR (512) NOT NULL,
   recommend BOOLEAN NOT NULL,
@@ -45,6 +45,8 @@ CREATE INDEX photos_review_id_idx ON reviews (review_id);
 CREATE INDEX cr_reviews_id_idx ON characteristics_reviews (review_id);
 
 CREATE INDEX cr_characteristics_id_idx ON characteristics_reviews (characteristics_id);
+
+CREATE INDEX c_product_id_idx ON characteristics (product_id);
 
 
 -- \copy reviews (id, product_id, rating, created_at, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
