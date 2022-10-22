@@ -118,15 +118,27 @@ module.exports.getMetaData = (req, res) => {
 module.exports.postReview = (req, res) => {
   //query object
   let insertReviewQuery = {
-    text: `INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email, date) VALUES ($1, $2, $3, $4, $5, $6, $7, to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"'))`,
+    text: 'INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
     values: Object.values(req.body).splice(0, 7)
   }
 
-  //insert new row into reviews
+  let insertPhotoQuery = 'INSERT INTO photos (review_id, url) VALUES ($1, $2)';
+
+
+  // insert new row into reviews
   model.queryAsync(insertReviewQuery)
     .then(result => {
       //insert each photo url into photos table, with corresponding review ID
-      console.log(result);
+      let review_id = result.rows[0].id;
+
+      let promises = req.body.photos.map(url => {
+        let values = [ review_id, url ]
+        return model.queryAsync(insertPhotoQuery, values);
+      })
+
+      return Promise.all(promises);
+    })
+    .then(result => {
       res.status(200).send(`Successfully posted review for product ${req.body.product_id}`);
     })
     .catch(error => {

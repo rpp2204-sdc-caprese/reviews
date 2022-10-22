@@ -2,15 +2,15 @@ CREATE TABLE IF NOT EXISTS reviews (
   id SERIAL PRIMARY KEY,
   product_id INT NOT NULL,
   rating INT NOT NULL,
-  date BIGINT NOT NULL,
+  date BIGINT DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"'),
   summary VARCHAR (256) NOT NULL,
   body VARCHAR (512) NOT NULL,
   recommend BOOLEAN NOT NULL,
-  reported BOOLEAN NOT NULL,
+  reported BOOLEAN DEFAULT false,
   reviewer_name VARCHAR (50) NOT NULL,
   reviewer_email VARCHAR (50) NOT NULL,
   response VARCHAR (256),
-  helpfulness INT
+  helpfulness INT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS photos (
@@ -48,6 +48,25 @@ CREATE INDEX c_product_id_idx ON characteristics (product_id);
 
 
 ALTER TABLE reviews ALTER COLUMN date TYPE varchar(30) USING to_char(to_timestamp(date / 1000), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
+
+SELECT setval('reviews_id_seq'::regclass, (SELECT MAX(id) FROM reviews));
+
+SELECT setval('photos_id_seq'::regclass, (SELECT MAX(id) FROM photos));
+
+
+
+
+
+
+-- SELECT MAX(id) FROM reviews;
+-- SELECT nextval('reviews_id_seq'::regclass);
+
+
+-- ALTER TABLE reviews ALTER COLUMN date SET DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
+
+-- ALTER TABLE reviews ALTER COLUMN helpfulness SET DEFAULT 0;
+
+-- ALTER TABLE reviews ALTER COLUMN response drop not null;
 
 
 -- \copy reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
