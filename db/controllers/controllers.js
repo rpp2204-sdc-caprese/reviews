@@ -116,24 +116,38 @@ module.exports.getMetaData = (req, res) => {
 };
 
 module.exports.postReview = (req, res) => {
-  //query object
+
+  let review_id;
+  //insert review query object
   let insertReviewQuery = {
     text: 'INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
     values: Object.values(req.body).splice(0, 7)
   }
-
+  //insert photo query
   let insertPhotoQuery = 'INSERT INTO photos (review_id, url) VALUES ($1, $2)';
 
+  //insert characteristic query
+  let insertCharQuery = 'INSERT INTO characteristics_reviews (characteristics_id, review_id, value) VALUES ($1, $2, $3)'
 
   // insert new row into reviews
   model.queryAsync(insertReviewQuery)
     .then(result => {
       //insert each photo url into photos table, with corresponding review ID
-      let review_id = result.rows[0].id;
+      review_id = result.rows[0].id;
 
       let promises = req.body.photos.map(url => {
         let values = [ review_id, url ]
         return model.queryAsync(insertPhotoQuery, values);
+      })
+
+      return Promise.all(promises);
+    })
+    .then(() => {
+      let promises = Object.keys(req.body.characteristics).map(char_id => {
+        let charValue = req.body.characteristics[char_id]
+        let values = [ char_id, review_id, charValue]
+
+        return model.queryAsync(insertCharQuery, values);
       })
 
       return Promise.all(promises);
@@ -144,10 +158,6 @@ module.exports.postReview = (req, res) => {
     .catch(error => {
       res.status(400).send(error.stack);
     })
-
-
-  //characteristic id???
-
 }
 
 module.exports.markHelpful = (req, res) => {

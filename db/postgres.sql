@@ -53,6 +53,8 @@ SELECT setval('reviews_id_seq'::regclass, (SELECT MAX(id) FROM reviews));
 
 SELECT setval('photos_id_seq'::regclass, (SELECT MAX(id) FROM photos));
 
+SELECT setval('characteristics_reviews_id_seq'::regclass, (SELECT MAX(id) FROM characteristics_reviews));
+
 
 
 
