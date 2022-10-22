@@ -42,17 +42,18 @@ CREATE INDEX reviews_product_id_idx ON reviews (product_id);
 
 CREATE INDEX photos_review_id_idx ON reviews (review_id);
 
-CREATE INDEX cr_reviews_id_idx ON characteristics_reviews (review_id);
-
 CREATE INDEX cr_characteristics_id_idx ON characteristics_reviews (characteristics_id);
 
 CREATE INDEX c_product_id_idx ON characteristics (product_id);
 
 
--- \copy reviews (id, product_id, rating, created_at, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
--- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/reviews.csv'
+ALTER TABLE reviews ALTER COLUMN date TYPE varchar(30) USING to_char(to_timestamp(date / 1000), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
+
+
+-- \copy reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
+-- FROM '/Users/ethanayaay/Documents/CSV/SDC/reviews.csv'
 -- DELIMITER ','
--- CSV HEADER;
+-- CSV HEADER
 
 -- \copy photos (id, review_id, photo_url)
 -- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/reviews_photos.csv'

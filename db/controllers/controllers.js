@@ -33,7 +33,10 @@ module.exports.getReviews = (req, res) => {
 
       //iterate through reviews and query corresponding photos
       let promises = data.results.map(review => {
-        return model.queryAsync(`SELECT id, url FROM photos WHERE review_id = ${review.id}`)
+        return model.queryAsync(`SELECT id,
+                                        url
+                                 FROM photos
+                                 WHERE review_id = ${review.id}`)
           .then(photoData => {
             //assign to data object
             return review.photos = photoData.rows;
@@ -63,24 +66,43 @@ module.exports.getMetaData = (req, res) => {
   }
 
   //count all ratings
-  model.queryAsync(`SELECT COUNT(id), rating FROM reviews WHERE product_id = ${product_id} GROUP BY rating`)
+  model.queryAsync(`SELECT COUNT(id),
+                         rating
+                    FROM reviews
+                    WHERE product_id = ${product_id}
+                    GROUP BY rating`)
     .then(result => {
       result.rows.forEach(x => {
         data.ratings[x.rating] = x.count;
       })
       //count recomendeds
-      return model.queryAsync(`SELECT COUNT(id), recommended FROM reviews WHERE product_id = ${product_id} GROUP BY recommended`)
+      return model.queryAsync(`SELECT COUNT(id),
+                                      recommended
+                               FROM reviews
+                               WHERE product_id = ${product_id}
+                               GROUP BY recommended`)
     })
     .then(result => {
       result.rows.forEach(x => {
         data.recommended[x.recommended] = x.count;
       })
-
-      return model.queryAsync(`SELECT c.name, AVG(cr.value) FROM characteristics AS c INNER JOIN characteristics_reviews AS cr ON cr.characteristics_id = c.id AND c.product_id = ${product_id} GROUP BY c.name`)
+      //return avg of each characteristic for current product
+      return model.queryAsync(`SELECT c.id,
+                                      c.name,
+                                      AVG(cr.value)
+                                FROM characteristics AS c
+                                INNER JOIN characteristics_reviews AS cr
+                                ON cr.characteristics_id = c.id
+                                AND c.product_id = ${product_id}
+                                GROUP BY c.id, c.name
+                                ORDER BY c.id ASC`)
     })
     .then(result => {
       result.rows.forEach(x => {
-        data.characteristics[x.name] = x.avg;
+        data.characteristics[x.name] = {
+          id: x.id,
+          value: x.avg
+        }
       })
     })
     .then(() => {
@@ -94,23 +116,26 @@ module.exports.getMetaData = (req, res) => {
 };
 
 module.exports.postReview = (req, res) => {
+  //query object
   let insertReviewQuery = {
-    text: 'INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-    values: Object.values(req.body)
+    text: `INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email, date) VALUES ($1, $2, $3, $4, $5, $6, $7, to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"'))`,
+    values: Object.values(req.body).splice(0, 7)
   }
-  // let values = Object.values(req.body)
-  // let insertReview = `INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email)
-  //               VALUES ($1, $2, $3, $4, $5, $6, $7)`
-
 
   //insert new row into reviews
-  // model.queryAsync(insertReviewQuery)
+  model.queryAsync(insertReviewQuery)
+    .then(result => {
+      //insert each photo url into photos table, with corresponding review ID
+      console.log(result);
+      res.status(200).send(`Successfully posted review for product ${req.body.product_id}`);
+    })
+    .catch(error => {
+      res.status(400).send(error.stack);
+    })
 
-  //insert each photo url into photos table, with corresponding review ID
 
   //characteristic id???
 
-  res.status(200).send(`Successfully posted review for product ${req.body.product_id}`);
 }
 
 module.exports.markHelpful = (req, res) => {
@@ -136,41 +161,3 @@ module.exports.reportReview = (req, res) => {
     res.status(400).send(error.stack);
   })
 }
-
-
-
-  // //query ratings and recommended from reviews table
-  // model.queryAsync(`SELECT id, rating, recommended FROM reviews WHERE product_id = ${product_id}`)
-  //   .then(result => {
-  //     let promises = result.rows.map(review => {
-  //                     //increment ratings
-  //                     data.ratings[review.rating]++
-  //                     //increment recommendeds
-  //                     data.recommended[review.recommended]++
-
-  //                     //query for characteristics for each review
-  //                     return model.queryAsync(`SELECT c.name, cr.value, cr.id
-  //                                              FROM characteristics AS c
-  //                                              INNER JOIN characteristics_reviews AS cr
-  //                                              ON cr.characteristics_id = c.id
-  //                                              AND cr.review_id = ${review.id}`)
-  //                                 .then(charData => {
-  //                                   console.log('data', charData.rows)
-
-  //                                   //for each characteristic
-  //                                   charData.rows.forEach(char => {
-  //                                     //create data in obj
-  //                                     if (!data.characteristics[char.name]) {
-  //                                       data.characteristics[char.name] = {
-  //                                         id: char.id,
-  //                                         value: char.value
-  //                                       }
-  //                                     } else {
-  //                                       //somehow get calculate the average of the value and reasign
-  //                                     }
-  //                                   })
-  //                                 })
-  //                   })
-  //     return Promise.all(promises);
-  //   })
-
