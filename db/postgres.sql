@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS reviews (
-  id SERIAL PRIMARY KEY,
+  review_id SERIAL PRIMARY KEY,
   product_id INT NOT NULL,
   rating INT NOT NULL,
-  date BIGINT DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"'),
+  date BIGINT NOT NULL,
   summary VARCHAR (256) NOT NULL,
   body VARCHAR (512) NOT NULL,
   recommend BOOLEAN NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS photos (
   review_id INT NOT NULL,
   photo_url VARCHAR (256),
   FOREIGN KEY (review_id)
-    REFERENCES reviews (id)
+    REFERENCES reviews (review_id)
 );
 
 CREATE TABLE IF NOT EXISTS characteristics (
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS characteristics_reviews (
   FOREIGN KEY (characteristics_id)
     REFERENCES characteristics (id),
   FOREIGN KEY (review_id)
-    REFERENCES reviews (id)
+    REFERENCES reviews (review_id)
 );
 
 CREATE INDEX reviews_product_id_idx ON reviews (product_id);
@@ -46,6 +46,7 @@ CREATE INDEX cr_characteristics_id_idx ON characteristics_reviews (characteristi
 
 CREATE INDEX c_product_id_idx ON characteristics (product_id);
 
+-- ALTER TABLE reviews ALTER COLUMN date TYPE timestamp USING to_char(date, 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"')''
 
 ALTER TABLE reviews ALTER COLUMN date TYPE varchar(30) USING to_char(to_timestamp(date / 1000), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
 
@@ -55,6 +56,7 @@ SELECT setval('photos_id_seq'::regclass, (SELECT MAX(id) FROM photos));
 
 SELECT setval('characteristics_reviews_id_seq'::regclass, (SELECT MAX(id) FROM characteristics_reviews));
 
+ALTER TABLE reviews ALTER COLUMN date SET DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
 
 
 
@@ -64,7 +66,6 @@ SELECT setval('characteristics_reviews_id_seq'::regclass, (SELECT MAX(id) FROM c
 -- SELECT nextval('reviews_id_seq'::regclass);
 
 
--- ALTER TABLE reviews ALTER COLUMN date SET DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
 
 -- ALTER TABLE reviews ALTER COLUMN helpfulness SET DEFAULT 0;
 

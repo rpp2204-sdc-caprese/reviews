@@ -2,22 +2,32 @@ const model = require('../index.js');
 
 module.exports.getReviews = (req, res) => {
   //store variables
-  let { page = 1, count = 5 , sort = 'relevant' , product_id } = req.query;
+  let { page = 1, count = 5 , sort, product_id } = req.query;
+
+  let sortQuery = ''
+
+  if (sort === "'helpful'" || sort === 'helpful') {
+    sortQuery = 'ORDER BY helpfulness DESC';
+  } else if (sort === "'newest'" || sort === 'newest') {
+    sortQuery = 'ORDER BY date DESC';
+  } else {
+    sortQuery = 'ORDER BY helpfulness DESC, date DESC'
+  }
 
  //initialize data object
   let data = {
     product: product_id,
-    page: page,
+    page: page * count - count,
     count
   }
 
   //query all reviews for current product
-  return model.queryAsync(`SELECT id,
+  return model.queryAsync(`SELECT review_id,
                                   rating,
                                   date,
                                   summary,
                                   body,
-                                  recommended,
+                                  recommend,
                                   reviewer_name,
                                   reviewer_email,
                                   response,
@@ -25,8 +35,9 @@ module.exports.getReviews = (req, res) => {
                             FROM reviews
                             WHERE product_id = ${product_id}
                             AND reported = false
+                            ${sortQuery}
                             LIMIT ${count}
-                            OFFSET ${page - 1}`)
+                            OFFSET ${page * count - count}`)
     .then(result => {
       //store reviews in data object
       data.results = result.rows;
@@ -36,7 +47,7 @@ module.exports.getReviews = (req, res) => {
         return model.queryAsync(`SELECT id,
                                         url
                                  FROM photos
-                                 WHERE review_id = ${review.id}`)
+                                 WHERE review_id = ${review.review_id}`)
           .then(photoData => {
             //assign to data object
             return review.photos = photoData.rows;
@@ -46,14 +57,13 @@ module.exports.getReviews = (req, res) => {
       return Promise.all(promises)
     })
     .then(result => {
-      console.log(data)
       res.status(200).json(data);
     })
     .catch(error => {
       console.log(error.stack);
       res.status(404).send(error.stack);
     })
-}
+};
 
 module.exports.getMetaData = (req, res) => {
   let { product_id } = req.query;
@@ -66,7 +76,7 @@ module.exports.getMetaData = (req, res) => {
   }
 
   //count all ratings
-  model.queryAsync(`SELECT COUNT(id),
+  model.queryAsync(`SELECT COUNT(review_id),
                          rating
                     FROM reviews
                     WHERE product_id = ${product_id}
@@ -76,15 +86,15 @@ module.exports.getMetaData = (req, res) => {
         data.ratings[x.rating] = x.count;
       })
       //count recomendeds
-      return model.queryAsync(`SELECT COUNT(id),
-                                      recommended
+      return model.queryAsync(`SELECT COUNT(review_id),
+                                      recommend
                                FROM reviews
                                WHERE product_id = ${product_id}
-                               GROUP BY recommended`)
+                               GROUP BY recommend`)
     })
     .then(result => {
       result.rows.forEach(x => {
-        data.recommended[x.recommended] = x.count;
+        data.recommended[x.recommend] = x.count;
       })
       //return avg of each characteristic for current product
       return model.queryAsync(`SELECT c.id,
@@ -106,7 +116,6 @@ module.exports.getMetaData = (req, res) => {
       })
     })
     .then(() => {
-      console.log('final data', data)
       res.status(200).json(data);
     })
     .catch(error => {
@@ -120,7 +129,7 @@ module.exports.postReview = (req, res) => {
   let review_id;
   //insert review query object
   let insertReviewQuery = {
-    text: 'INSERT INTO reviews (product_id, rating, summary, body, recommended, reviewer_name, reviewer_email) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+    text: 'INSERT INTO reviews (product_id, rating, summary, body, recommend, reviewer_name, reviewer_email) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING review_id',
     values: Object.values(req.body).splice(0, 7)
   }
   //insert photo query
@@ -133,7 +142,7 @@ module.exports.postReview = (req, res) => {
   model.queryAsync(insertReviewQuery)
     .then(result => {
       //insert each photo url into photos table, with corresponding review ID
-      review_id = result.rows[0].id;
+      review_id = result.rows[0].review_id;
 
       let promises = req.body.photos.map(url => {
         let values = [ review_id, url ]
@@ -158,28 +167,28 @@ module.exports.postReview = (req, res) => {
     .catch(error => {
       res.status(400).send(error.stack);
     })
-}
+};
 
 module.exports.markHelpful = (req, res) => {
   let {review_id} = req.params;
 
-  model.queryAsync(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = ${review_id}`)
+  model.queryAsync(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE review_id = ${review_id}`)
     .then(result => {
       res.status(200).send(`Marked review ${review_id} as helpful`);
     })
     .catch(error => {
       res.status(400).send(error.stack);
     })
-}
+};
 
 module.exports.reportReview = (req, res) => {
   let {review_id} = req.params;
 
-  model.queryAsync(`UPDATE reviews SET reported = true WHERE id = ${review_id}`)
+  model.queryAsync(`UPDATE reviews SET reported = true WHERE review_id = ${review_id}`)
   .then(result => {
     res.status(200).send(`Reported review ${review_id}`);
   })
   .catch(error => {
     res.status(400).send(error.stack);
   })
-}
+};
