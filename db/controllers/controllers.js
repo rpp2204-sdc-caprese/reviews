@@ -31,32 +31,18 @@ module.exports.getReviews = (req, res) => {
                                   reviewer_name,
                                   reviewer_email,
                                   response,
-                                  helpfulness
-                            FROM reviews
+                                  helpfulness,
+                                  ARRAY_REMOVE(ARRAY_AGG(url), NULL) AS photos
+                            FROM reviews AS r
+                            LEFT JOIN photos USING (review_id)
                             WHERE product_id = ${product_id}
                             AND reported = false
+                            GROUP BY review_id
                             ${sortQuery}
                             LIMIT ${count}
                             OFFSET ${page * count - count}`)
     .then(result => {
-      //store reviews in data object
-      data.results = result.rows;
-
-      //iterate through reviews and query corresponding photos
-      let promises = data.results.map(review => {
-        return model.queryAsync(`SELECT id,
-                                        url
-                                 FROM photos
-                                 WHERE review_id = ${review.review_id}`)
-          .then(photoData => {
-            //assign to data object
-            return review.photos = photoData.rows;
-          })
-      })
-      //resolve all promises
-      return Promise.all(promises)
-    })
-    .then(result => {
+      data.result = result.rows;
       res.status(200).json(data);
     })
     .catch(error => {
@@ -192,3 +178,36 @@ module.exports.reportReview = (req, res) => {
     res.status(400).send(error.stack);
   })
 };
+
+
+
+    // .then(result => {
+    //   //store reviews in data object
+    //   data.results = result.rows;
+
+    //   //iterate through reviews and query corresponding photos
+    //   let promises = data.results.map(review => {
+    //     return model.queryAsync(`SELECT id,
+    //                                     url
+    //                              FROM photos
+    //                              WHERE review_id = ${review.review_id}`)
+    //       .then(photoData => {
+    //         //assign to data object
+    //         return review.photos = photoData.rows;
+    //       })
+    //   })
+    //   //resolve all promises
+    //   return Promise.all(promises)
+    // })
+
+    `SELECT review_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email, response, helpfulness, ARRAY(
+                                    SELECT url
+                                    FROM photos AS p
+                                    WHERE p.review_id = r.review_id
+                                  ) AS photos
+                            FROM reviews AS r
+                            WHERE product_id = 4
+                            AND reported = false
+                            ORDER BY helpfulness DESC
+                            LIMIT 5
+                            OFFSET 0`
