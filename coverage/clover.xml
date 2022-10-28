@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1665257880738" clover="3.2.0">
-  <project timestamp="1665257880738" name="All files">
-    <metrics statements="33" coveredstatements="26" conditionals="3" coveredconditionals="3" methods="11" coveredmethods="5" elements="47" coveredelements="34" complexity="0" loc="33" ncloc="33" packages="3" files="3" classes="3"/>
+<coverage generated="1666681069891" clover="3.2.0">
+  <project timestamp="1666681069892" name="All files">
+    <metrics statements="88" coveredstatements="63" conditionals="10" coveredconditionals="8" methods="36" coveredmethods="21" elements="134" coveredelements="92" complexity="0" loc="88" ncloc="88" packages="3" files="3" classes="3"/>
     <package name="db">
       <metrics statements="8" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
       <file name="index.js" path="/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/index.js">
@@ -17,40 +17,95 @@
       </file>
     </package>
     <package name="db.controllers">
-      <metrics statements="9" coveredstatements="9" conditionals="3" coveredconditionals="3" methods="3" coveredmethods="3"/>
+      <metrics statements="63" coveredstatements="42" conditionals="10" coveredconditionals="8" methods="28" coveredmethods="16"/>
       <file name="controllers.js" path="/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/controllers/controllers.js">
-        <metrics statements="9" coveredstatements="9" conditionals="3" coveredconditionals="3" methods="3" coveredmethods="3"/>
+        <metrics statements="63" coveredstatements="42" conditionals="10" coveredconditionals="8" methods="28" coveredmethods="16"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
-        <line num="4" count="3" type="cond" truecount="3" falsecount="0"/>
+        <line num="5" count="3" type="cond" truecount="2" falsecount="0"/>
         <line num="7" count="3" type="stmt"/>
-        <line num="20" count="2" type="stmt"/>
-        <line num="27" count="2" type="stmt"/>
-        <line num="28" count="2" type="stmt"/>
-        <line num="31" count="1" type="stmt"/>
-        <line num="32" count="1" type="stmt"/>
+        <line num="9" count="3" type="cond" truecount="3" falsecount="1"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="3" type="cond" truecount="3" falsecount="1"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="18" count="3" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="47" count="10" type="stmt"/>
+        <line num="53" count="10" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="121" count="0" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="125" count="0" type="stmt"/>
+        <line num="129" count="1" type="stmt"/>
+        <line num="133" count="10" type="stmt"/>
+        <line num="138" count="10" type="stmt"/>
+        <line num="141" count="10" type="stmt"/>
+        <line num="144" count="10" type="stmt"/>
+        <line num="147" count="1" type="stmt"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="150" count="0" type="stmt"/>
+        <line num="151" count="0" type="stmt"/>
+        <line num="154" count="1" type="stmt"/>
+        <line num="157" count="1" type="stmt"/>
+        <line num="158" count="4" type="stmt"/>
+        <line num="159" count="4" type="stmt"/>
+        <line num="161" count="4" type="stmt"/>
+        <line num="164" count="1" type="stmt"/>
+        <line num="167" count="1" type="stmt"/>
+        <line num="170" count="9" type="stmt"/>
+        <line num="174" count="1" type="stmt"/>
+        <line num="175" count="1" type="stmt"/>
+        <line num="177" count="1" type="stmt"/>
+        <line num="179" count="1" type="stmt"/>
+        <line num="182" count="0" type="stmt"/>
+        <line num="186" count="1" type="stmt"/>
+        <line num="187" count="1" type="stmt"/>
+        <line num="189" count="1" type="stmt"/>
+        <line num="191" count="1" type="stmt"/>
+        <line num="194" count="0" type="stmt"/>
       </file>
     </package>
     <package name="server">
-      <metrics statements="16" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="2"/>
+      <metrics statements="17" coveredstatements="15" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="5"/>
       <file name="app.js" path="/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/server/app.js">
-        <metrics statements="16" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="2"/>
+        <metrics statements="17" coveredstatements="15" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="5"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="10" count="1" type="stmt"/>
-        <line num="11" count="3" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="18" count="1" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="26" count="1" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
-        <line num="30" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="10" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
       </file>
     </package>
   </project>
