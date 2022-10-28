@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS characteristics_reviews (
 
 CREATE INDEX reviews_product_id_idx ON reviews (product_id);
 
-CREATE INDEX photos_review_id_idx ON reviews (review_id);
+CREATE INDEX photos_review_id_idx ON photos (review_id);
 
 CREATE INDEX cr_characteristics_id_idx ON characteristics_reviews (characteristics_id);
 

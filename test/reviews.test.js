@@ -10,7 +10,7 @@ const mockDB = {
   reportReview: jest.fn()
 }
 
-const app = makeApp(mockDB);
+const app = makeApp(db);
 
 describe('First Test', () => {
   it ("Should add values", () => {

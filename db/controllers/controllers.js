@@ -1,25 +1,17 @@
 const model = require('../index.js');
 
-module.exports.getReviews = (req, res) => {
-  //store variables
-  let { page = 1, count = 5 , sort, product_id } = req.query;
-
-  let sortQuery = ''
+module.exports.getReviews = ({page = 1, count = 5, sort, product_id}) => {
+  let sortQuery = 'ORDER BY review_id ASC'
 
   if (sort === "'helpful'" || sort === 'helpful') {
     sortQuery = 'ORDER BY helpfulness DESC';
   } else if (sort === "'newest'" || sort === 'newest') {
     sortQuery = 'ORDER BY date DESC';
-  } else {
+  } else if ( sort === "'relevant'" || sort === 'relevant' ) {
     sortQuery = 'ORDER BY helpfulness DESC, date DESC'
   }
 
- //initialize data object
-  let data = {
-    product: product_id,
-    page: page * count - count,
-    count
-  }
+  // ARRAY_TO_JSON(ARRAY_REMOVE(ARRAY_AGG(), NULL)) AS photos
 
   //query all reviews for current product
   return model.queryAsync(`SELECT review_id,
@@ -32,7 +24,10 @@ module.exports.getReviews = (req, res) => {
                                   reviewer_email,
                                   response,
                                   helpfulness,
-                                  ARRAY_REMOVE(ARRAY_AGG(url), NULL) AS photos
+                                  COALESCE(JSON_AGG(JSON_BUILD_OBJECT(
+                                    'id', id,
+                                    'url', url
+                                  )) FILTER (WHERE url IS NOT NULL), '[]'::json) AS photos
                             FROM reviews AS r
                             LEFT JOIN photos USING (review_id)
                             WHERE product_id = ${product_id}
@@ -41,28 +36,11 @@ module.exports.getReviews = (req, res) => {
                             ${sortQuery}
                             LIMIT ${count}
                             OFFSET ${page * count - count}`)
-    .then(result => {
-      data.result = result.rows;
-      res.status(200).json(data);
-    })
-    .catch(error => {
-      console.log(error.stack);
-      res.status(404).send(error.stack);
-    })
 };
 
-module.exports.getMetaData = (req, res) => {
-  let { product_id } = req.query;
-
-  let data = {
-    product_id,
-    ratings: {},
-    recommended: {},
-    characteristics: {}
-  }
-
+module.exports.getMetaData = ({product_id}, data) => {
   //count all ratings
-  model.queryAsync(`SELECT COUNT(review_id),
+  return model.queryAsync(`SELECT COUNT(review_id),
                          rating
                     FROM reviews
                     WHERE product_id = ${product_id}
@@ -101,17 +79,9 @@ module.exports.getMetaData = (req, res) => {
         }
       })
     })
-    .then(() => {
-      res.status(200).json(data);
-    })
-    .catch(error => {
-      console.log(error.stack);
-      res.status(404).send(error.stack);
-    })
 };
 
-module.exports.postReview = (req, res) => {
-
+module.exports.postReview = (req) => {
   let review_id;
   //insert review query object
   let insertReviewQuery = {
@@ -125,7 +95,7 @@ module.exports.postReview = (req, res) => {
   let insertCharQuery = 'INSERT INTO characteristics_reviews (characteristics_id, review_id, value) VALUES ($1, $2, $3)'
 
   // insert new row into reviews
-  model.queryAsync(insertReviewQuery)
+  return model.queryAsync(insertReviewQuery)
     .then(result => {
       //insert each photo url into photos table, with corresponding review ID
       review_id = result.rows[0].review_id;
@@ -147,67 +117,12 @@ module.exports.postReview = (req, res) => {
 
       return Promise.all(promises);
     })
-    .then(result => {
-      res.status(200).send(`Successfully posted review for product ${req.body.product_id}`);
-    })
-    .catch(error => {
-      res.status(400).send(error.stack);
-    })
 };
 
-module.exports.markHelpful = (req, res) => {
-  let {review_id} = req.params;
-
-  model.queryAsync(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE review_id = ${review_id}`)
-    .then(result => {
-      res.status(200).send(`Marked review ${review_id} as helpful`);
-    })
-    .catch(error => {
-      res.status(400).send(error.stack);
-    })
+module.exports.markHelpful = ({review_id}) => {
+  return model.queryAsync(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE review_id = ${review_id}`)
 };
 
-module.exports.reportReview = (req, res) => {
-  let {review_id} = req.params;
-
-  model.queryAsync(`UPDATE reviews SET reported = true WHERE review_id = ${review_id}`)
-  .then(result => {
-    res.status(200).send(`Reported review ${review_id}`);
-  })
-  .catch(error => {
-    res.status(400).send(error.stack);
-  })
+module.exports.reportReview = ({review_id}) => {
+  return model.queryAsync(`UPDATE reviews SET reported = true WHERE review_id = ${review_id}`)
 };
-
-
-
-    // .then(result => {
-    //   //store reviews in data object
-    //   data.results = result.rows;
-
-    //   //iterate through reviews and query corresponding photos
-    //   let promises = data.results.map(review => {
-    //     return model.queryAsync(`SELECT id,
-    //                                     url
-    //                              FROM photos
-    //                              WHERE review_id = ${review.review_id}`)
-    //       .then(photoData => {
-    //         //assign to data object
-    //         return review.photos = photoData.rows;
-    //       })
-    //   })
-    //   //resolve all promises
-    //   return Promise.all(promises)
-    // })
-
-    `SELECT review_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email, response, helpfulness, ARRAY(
-                                    SELECT url
-                                    FROM photos AS p
-                                    WHERE p.review_id = r.review_id
-                                  ) AS photos
-                            FROM reviews AS r
-                            WHERE product_id = 4
-                            AND reported = false
-                            ORDER BY helpfulness DESC
-                            LIMIT 5
-                            OFFSET 0`
