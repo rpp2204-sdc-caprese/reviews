@@ -9,8 +9,8 @@ export const options = {
       duration: '60s',
       rate: 1000,
       timeUnit: '1s',
-      preAllocatedVUs: 2,
-      maxVUs: 50,
+      preAllocatedVUs: 50,
+      maxVUs: 100,
     }
   },
   thresholds: {
@@ -47,8 +47,7 @@ const params = {
 };
 
 export default () => {
-  http.get(reviews);
-
+  http.get(metas);
   // http.post(post, payload, params)
 }
 

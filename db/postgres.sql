@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS characteristics_reviews (
   FOREIGN KEY (review_id)
     REFERENCES reviews (review_id)
 );
+-- AFTER ETL
 
 CREATE INDEX reviews_product_id_idx ON reviews (product_id);
 
@@ -46,11 +47,10 @@ CREATE INDEX cr_characteristics_id_idx ON characteristics_reviews (characteristi
 
 CREATE INDEX c_product_id_idx ON characteristics (product_id);
 
--- ALTER TABLE reviews ALTER COLUMN date TYPE timestamp USING to_char(date, 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"')''
 
 ALTER TABLE reviews ALTER COLUMN date TYPE varchar(30) USING to_char(to_timestamp(date / 1000), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
 
-SELECT setval('reviews_id_seq'::regclass, (SELECT MAX(id) FROM reviews));
+SELECT setval('reviews_review_id_seq'::regclass, (SELECT MAX(review_id) FROM reviews));
 
 SELECT setval('photos_id_seq'::regclass, (SELECT MAX(id) FROM photos));
 
@@ -72,25 +72,27 @@ ALTER TABLE reviews ALTER COLUMN date SET DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"H
 -- ALTER TABLE reviews ALTER COLUMN response drop not null;
 
 
--- \copy reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
--- FROM '/Users/ethanayaay/Documents/CSV/SDC/reviews.csv'
--- DELIMITER ','
--- CSV HEADER
+\copy reviews (review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
+FROM '/home/ubuntu/reviews.csv'
+DELIMITER ','
+CSV HEADER;
 
--- \copy photos (id, review_id, photo_url)
--- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/reviews_photos.csv'
--- DELIMITER ','
--- CSV HEADER;
+\copy photos (id, review_id, photo_url)
+FROM '/home/ubuntu/reviews_photos.csv'
+DELIMITER ','
+CSV HEADER;
 
--- \copy characteristics (id, product_id, name)
--- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/characteristics.csv'
--- DELIMITER ','
--- CSV HEADER;
+\copy characteristics (id, product_id, name)
+FROM '/home/ubuntu/characteristics.csv'
+DELIMITER ','
+CSV HEADER;
 
--- \copy characteristics_reviews (id, characteristics_id, review_id, value)
--- FROM '/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/db/data/characteristic_reviews.csv'
--- DELIMITER ','
--- CSV HEADER;
+\copy characteristics_reviews (id, characteristics_id, review_id, value)
+FROM '/home/ubuntu/characteristic_reviews.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- $ scp -i db.cer characteristic_reviews.csv ubuntu@ec2-184-73-20-153.compute-1.amazonaws.com:~/
 
 
 
