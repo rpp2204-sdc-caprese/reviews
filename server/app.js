@@ -78,6 +78,10 @@ module.exports = (db) => {
       })
   })
 
+  app.get('/loaderio-2e0157ab1bba94790821803b197e858b.txt', (req, res) => {
+    res.sendFile('/Users/ethanayaay/Documents/Code/Hack-Reactor/SDC/reviews/loaderio-2e0157ab1bba94790821803b197e858b.txt')
+  })
+
   return app;
 }
 
