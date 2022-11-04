@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS photos (
   id SERIAL PRIMARY KEY,
   review_id INT NOT NULL,
-  photo_url VARCHAR (256),
+  url VARCHAR (256),
   FOREIGN KEY (review_id)
     REFERENCES reviews (review_id)
 );
@@ -57,6 +57,8 @@ SELECT setval('photos_id_seq'::regclass, (SELECT MAX(id) FROM photos));
 SELECT setval('characteristics_reviews_id_seq'::regclass, (SELECT MAX(id) FROM characteristics_reviews));
 
 ALTER TABLE reviews ALTER COLUMN date SET DEFAULT to_char(NOW(), 'YYYY-MM-dd"T"HH:MM:SS.MS"Z"');
+
+-- ALTER TABLE photos RENAME COLUMN photo_url TO url;
 
 
 
