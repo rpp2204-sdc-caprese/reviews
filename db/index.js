@@ -2,10 +2,13 @@ const { Pool, Client } = require('pg');
 const Promise = require('bluebird');
 require('dotenv').config();
 
+
 const pool = new Pool({
   user: process.env.USER,
+  host: process.env.HOST,
   database: process.env.DATABASE,
-  password: process.env.PASSWORD
+  password: process.env.PASSWORD,
+  port: process.env.PORT
 });
 
 pool.on('error', (err, client) => {
