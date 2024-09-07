@@ -3,7 +3,7 @@
 A redesign of a monolithic ratings and reviews microservice with an end goal to support load under large amounts of user traffic and stress. This service handles requests in gathering numerous product reviews, as well as gathering a product’s meta data, such as average rating, and the average rating for a product’s characteristics, like quality, fit or length. This service also allows user input, allowing them to add their own review to a product, as well as report or mark existing reviews as helpful.
 
 ## Front End Repository
-[COMNI] (https://github.com/rpp2204-fec-lycheejelly/comnhi)
+[COMNHI](https://github.com/rpp2204-fec-lycheejelly/comnhi)
 
 ## Goals
 * Throughput of 1000 RPS
